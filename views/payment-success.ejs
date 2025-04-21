@@ -1,13 +1,143 @@
-<!-- views/payment-success.ejs -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Payment Success</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Fredoka", sans-serif;
+        background-color: #fff3e6;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+
+      .header {
+        padding: 20px 0;
+        text-align: center;
+        width: 100%;
+      }
+
+      .brand-name {
+        font-size: 1.5rem;
+        color: #5c3b1e;
+        font-weight: 600;
+      }
+
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+      }
+
+      .content {
+        background-color: #fff9f3;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(92, 59, 30, 0.1);
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+      }
+
+      .title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #5c3b1e;
+        margin-bottom: 20px;
+      }
+
+      .message {
+        font-size: 1.125rem;
+        color: #4a5568;
+        margin-bottom: 30px;
+      }
+
+      .back-btn {
+        display: inline-block;
+        background-color: #d86f45;
+        color: white;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+      }
+
+      .back-btn:hover {
+        background-color: #c75b32;
+      }
+
+      @media (max-width: 768px) {
+        .brand-name {
+          font-size: 1.2rem;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .title {
+          font-size: 1.5rem;
+        }
+
+        .message {
+          font-size: 1rem;
+        }
+
+        .back-btn {
+          padding: 8px 16px;
+          font-size: 0.9rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .brand-name {
+          font-size: 1rem;
+        }
+
+        .title {
+          font-size: 1.2rem;
+        }
+
+        .message {
+          font-size: 0.9rem;
+        }
+
+        .back-btn {
+          padding: 8px 12px;
+          font-size: 0.85rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <h1>Thank you for your order!</h1>
-    <p>Your payment was successful, and your order is being processed.</p>
+    <div class="header">
+      <div class="brand-name">May's Place</div>
+    </div>
+
+    <div class="container">
+      <div class="content">
+        <h1 class="title">Thank you for your order!</h1>
+        <p class="message">
+          Your payment was successful, and your order is being processed.
+        </p>
+        <a href="/" class="back-btn">Order again</a>
+      </div>
+    </div>
   </body>
 </html>

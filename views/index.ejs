@@ -3,9 +3,10 @@
   <head>
     <title>Restaurant ChatBot</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap");
       body {
-        font-family: Arial, sans-serif;
-        background: #f9f9f9;
+        font-family: "Fredoka", sans-serif;
+        background-color: #fff3e6;
         margin: 0;
         padding: 0;
         display: flex;
@@ -14,16 +15,36 @@
         justify-content: space-between;
       }
 
+      .header {
+        background-color: #f7e1cc;
+        padding: 12px 0;
+        text-align: center;
+        border-bottom: 2px solid #d8bfa3;
+        box-shadow: 0 2px 5px rgba(92, 59, 30, 0.1);
+      }
+
+      .header img {
+        height: 50px;
+        object-fit: contain;
+        vertical-align: middle;
+      }
+
+      .brand-name {
+        font-size: 1.3rem;
+        color: #5c3b1e;
+        margin-top: 5px;
+        font-weight: 600;
+      }
       #chat-box {
         width: 90%;
         max-width: 600px;
         margin: 40px auto;
-        background: white;
+        background-color: #fff9f3;
+        box-shadow: 0 0 8px rgba(92, 59, 30, 0.05);
         border-radius: 10px;
         padding: 20px;
         flex-grow: 1;
         overflow-y: auto;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       }
 
       .message {
@@ -37,13 +58,14 @@
       }
 
       .bot-message {
-        background-color: #e0e0e0;
+        background-color: #eee1d2;
+        color: #4a3523;
         text-align: left;
         margin-right: auto;
       }
 
       .user-message {
-        background-color: #4caf50;
+        background-color: #d86f45;
         color: white;
         text-align: right;
         margin-left: auto;
@@ -57,7 +79,8 @@
         justify-content: space-between;
         align-items: center;
         padding: 10px;
-        background-color: white;
+        background-color: #fff9f3;
+        box-shadow: 0 0 8px rgba(92, 59, 30, 0.05);
         border-top: 1px solid #ccc;
         border-radius: 10px;
       }
@@ -66,8 +89,9 @@
         flex-grow: 1;
         padding: 8px 15px;
         font-size: 14px;
-        border: 1px solid #ccc;
         border-radius: 10px;
+        background-color: #fff5eb;
+        border: 1px solid #d8bfa3;
         height: 36px;
         max-width: 100%;
         outline: none;
@@ -75,27 +99,30 @@
       }
 
       #input-box input:focus {
-        border-color: #4caf50;
+        border-color: #ffb47a;
       }
 
       #input-box button {
         padding: 8px 15px;
-        background-color: #4caf50;
+        background-color: #d86f45;
         color: white;
         border: none;
         cursor: pointer;
         font-size: 16px;
-        border-radius: 10px; 
-        margin-left: 10px; 
+        border-radius: 10px;
+        margin-left: 10px;
         transition: all 0.3s;
       }
 
       #input-box button:hover {
-        background-color: #45a049;
+        background-color: #c75b32;
       }
     </style>
   </head>
   <body>
+    <div class="header">
+      <div class="brand-name">May's Place</div>
+    </div>
     <div id="chat-box"></div>
 
     <div id="input-box">
@@ -134,6 +161,12 @@
       input.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
           button.click();
+        }
+      });
+
+      socket.on("redirect", (url) => {
+        if (url) {
+          window.location.href = url;
         }
       });
     </script>

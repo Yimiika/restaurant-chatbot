@@ -23,14 +23,18 @@ mongoose
 
 app.set("views", "views");
 app.set("view engine", "ejs");
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 app.use(express.json());
 
 let orders = {};
 let menu = [
-  { id: 11, name: "Burger", price: 500 },
-  { id: 12, name: "Pizza", price: 1200 },
-  { id: 13, name: "Salad", price: 400 },
+  { id: 11, name: "Classic glazed doughnuts", price: 2500 },
+  { id: 12, name: "Strawberry glazed doughnuts", price: 3000 },
+  { id: 13, name: "Maple glazed dougnuts", price: 4000 },
+  { id: 14, name: "Chocolate filled dougnuts", price: 2500 },
+  { id: 15, name: "Jam filled dougnuts", price: 1900 },
+  { id: 16, name: "Classic dougnuts with sprinkles", price: 4500 },
+  { id: 17, name: "Classic doughnuts with chocolate shavings", price: 5000 },
 ];
 
 app.get("/", (req, res) => {
@@ -42,7 +46,6 @@ app.get("/payment-success", (req, res) => {
   res.render("payment-success");
 });
 
-// Paystack Webhook for payment status update
 app.post("/paystack-webhook", (req, res) => {
   const { event, data } = req.body;
   const reference = data.reference;
@@ -70,7 +73,7 @@ app.post("/paystack-webhook", (req, res) => {
 io.on("connection", (socket) => {
   console.log("a user connected");
   const welcomeMessage = `
-  Welcome to the May's Place!
+  Welcome to May's Place!
   Please select an option:
   1️⃣  Select 1 to Place an order
   9️⃣9️⃣  Select 99 to Checkout order
@@ -88,6 +91,10 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
+  });
+
+  socket.on("redirect", (url) => {
+    window.location.href = url;
   });
 });
 
@@ -115,7 +122,7 @@ function handleChatbotResponse(userId, message, socket) {
         newOrder.save().then((savedOrder) => {
           socket.emit(
             "message",
-            `Order placed. Total amount: ₦${total}. Proceed to payment.`
+            `Order placed. Total amount: ₦${total}. Proceeding to payment...`
           );
           initiatePayment(userId, socket, savedOrder._id, total);
         });
@@ -164,20 +171,26 @@ function handleChatbotResponse(userId, message, socket) {
     default:
       const selectedItem = menu.find((item) => item.id === parseInt(message));
       if (selectedItem) {
-        if (orders[userId]) {
-          orders[userId].items.push(selectedItem);
-          socket.emit("message", `${selectedItem.name} added to your order.`);
-          socket.emit(
-            "message",
-            "Would you like to add something else or select 99 to checkout?"
-          );
+        if (!orders[userId]) {
+          orders[userId] = {
+            status: "ordering",
+            items: [],
+          };
         }
+
+        orders[userId].items.push(selectedItem);
+        socket.emit("message", `${selectedItem.name} added to your order.`);
+        socket.emit(
+          "message",
+          "Would you like to add something else or select 99 to checkout?"
+        );
       } else {
         socket.emit(
           "message",
           "Invalid option. Please select a valid item or option."
         );
       }
+
       break;
   }
 }
@@ -192,7 +205,6 @@ function calculateTotal(userId) {
   return total;
 }
 
-// Initiate payment through Paystack
 function initiatePayment(userId, socket, orderId, totalAmount) {
   const amount = totalAmount * 100;
   const reference = `order_${orderId}_${Date.now()}`;
@@ -216,11 +228,17 @@ function initiatePayment(userId, socket, orderId, totalAmount) {
     .post(url, data, { headers })
     .then((response) => {
       if (
-        response.data.status === "success" &&
+        response.data.status === true &&
         response.data.data.authorization_url
       ) {
-        Order.findByIdAndUpdate(orderId, { paystack_reference: reference })
+        Order.findByIdAndUpdate(orderId, {
+          paystack_reference: response.data.data.reference,
+        })
           .then(() => {
+            console.log(
+              "Redirecting to: ",
+              response.data.data.authorization_url
+            );
             socket.emit("redirect", response.data.data.authorization_url);
           })
           .catch((err) => {
