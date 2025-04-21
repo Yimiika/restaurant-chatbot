@@ -204,13 +204,14 @@ function initiatePayment(userId, socket, orderId, totalAmount) {
   paystack.transaction
     .initialize({
       amount,
-      email: "testemail@example.com",
+      email: "testemail@example.com", // replace with actual email
       reference,
       callback_url:
-        "https://restaurant-chatbot-4mmu.onrender.com/payment-success", // Paystack callback URL
+        "https://restaurant-chatbot-4mmu.onrender.com/payment-success",
     })
     .then((response) => {
-      if (response.data && response.data.authorization_url) {
+      console.log("Paystack response:", response); // Log the entire response for debugging
+      if (response && response.data && response.data.authorization_url) {
         Order.findByIdAndUpdate(orderId, { paystack_reference: reference })
           .then(() => {
             socket.emit("message", `Redirecting to payment...`);
@@ -224,7 +225,11 @@ function initiatePayment(userId, socket, orderId, totalAmount) {
             socket.emit("message", "Error initiating payment.");
           });
       } else {
-        socket.emit("message", "Error: Authorization URL not found.");
+        console.error(
+          "Paystack response is missing authorization_url:",
+          response
+        );
+        socket.emit("message", "Error retrieving payment link.");
       }
     })
     .catch((error) => {
