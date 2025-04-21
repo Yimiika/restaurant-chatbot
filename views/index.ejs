@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Restaurant ChatBot</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        justify-content: space-between;
+      }
+
+      #chat-box {
+        width: 90%;
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        flex-grow: 1;
+        overflow-y: auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .message {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 10px;
+        width: auto;
+        white-space: pre-line;
+        word-wrap: break-word;
+        max-width: 80%;
+      }
+
+      .bot-message {
+        background-color: #e0e0e0;
+        text-align: left;
+        margin-right: auto;
+      }
+
+      .user-message {
+        background-color: #4caf50;
+        color: white;
+        text-align: right;
+        margin-left: auto;
+      }
+
+      #input-box {
+        width: 90%;
+        max-width: 600px;
+        margin: 10px auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: white;
+        border-top: 1px solid #ccc;
+        border-radius: 10px;
+      }
+
+      #input-box input {
+        flex-grow: 1;
+        padding: 8px 15px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        height: 36px;
+        max-width: 100%;
+        outline: none;
+        transition: all 0.3s;
+      }
+
+      #input-box input:focus {
+        border-color: #4caf50;
+      }
+
+      #input-box button {
+        padding: 8px 15px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 10px; 
+        margin-left: 10px; 
+        transition: all 0.3s;
+      }
+
+      #input-box button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chat-box"></div>
+
+    <div id="input-box">
+      <input type="text" id="message-input" placeholder="Type a message..." />
+      <button id="send-button">Send</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const chatBox = document.getElementById("chat-box");
+      const input = document.getElementById("message-input");
+      const button = document.getElementById("send-button");
+
+      function appendMessage(text, className) {
+        const message = document.createElement("div");
+        message.classList.add("message", className);
+        message.textContent = text;
+        chatBox.appendChild(message);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      socket.on("message", (text) => {
+        appendMessage(text, "bot-message");
+      });
+
+      button.addEventListener("click", () => {
+        const userInput = input.value.trim();
+        if (userInput) {
+          appendMessage(userInput, "user-message");
+          socket.emit("user-message", userInput);
+          input.value = "";
+        }
+      });
+
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          button.click();
+        }
+      });
+    </script>
+  </body>
+</html>
