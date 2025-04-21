@@ -194,42 +194,45 @@ function calculateTotal(userId) {
 
 // Initiate payment through Paystack
 function initiatePayment(userId, socket, orderId, totalAmount) {
-  const paystack = require("paystack")({
-    secret: process.env.PAYSTACK_SECRET_KEY,
-  });
   const amount = totalAmount * 100;
-
   const reference = `order_${orderId}_${Date.now()}`;
+  const email = "testemail@example.com";
 
-  paystack.transaction
-    .initialize({
-      amount,
-      email: "testemail@example.com", // replace with actual email
-      reference,
-      callback_url:
-        "https://restaurant-chatbot-4mmu.onrender.com/payment-success",
-    })
+  const url = "https://api.paystack.co/transaction/initialize";
+  const headers = {
+    Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  };
+
+  const data = {
+    amount,
+    email,
+    reference,
+    callback_url:
+      "https://restaurant-chatbot-4mmu.onrender.com/payment-success",
+  };
+
+  axios
+    .post(url, data, { headers })
     .then((response) => {
-      console.log("Paystack response:", response); // Log the entire response for debugging
-      if (response && response.data && response.data.authorization_url) {
+      if (
+        response.data.status === "success" &&
+        response.data.data.authorization_url
+      ) {
         Order.findByIdAndUpdate(orderId, { paystack_reference: reference })
           .then(() => {
-            socket.emit("message", `Redirecting to payment...`);
-            socket.emit(
-              "message",
-              `Payment link: ${response.data.authorization_url}`
-            );
+            socket.emit("redirect", response.data.data.authorization_url);
           })
           .catch((err) => {
             console.error("Order update error:", err);
-            socket.emit("message", "Error initiating payment.");
+            socket.emit(
+              "message",
+              "Error updating order with Paystack reference."
+            );
           });
       } else {
-        console.error(
-          "Paystack response is missing authorization_url:",
-          response
-        );
-        socket.emit("message", "Error retrieving payment link.");
+        console.error("Paystack response error:", response.data);
+        socket.emit("message", "Error initiating payment. Please try again.");
       }
     })
     .catch((error) => {
